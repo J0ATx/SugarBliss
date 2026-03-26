@@ -1,0 +1,184 @@
+---
+import { supabase } from '../../db/supabase';
+
+type ProductLike = Record<string, unknown>;
+
+const { data, error } = await supabase
+	.from('productos')
+	.select('*')
+	.eq('destacado', true)
+	.order('id', { ascending: true });
+
+const destacados = ((data ?? []) as ProductLike[]).filter((p) => p?.id !== null && p?.id !== undefined);
+
+const cards = destacados.map((p) => ({
+	id: String(p.id),
+	href: `/product/${String(p.id)}`,
+	img: typeof p?.image_url === 'string' ? p.image_url : '/images/default-product.jpg',
+	title: typeof p?.nombre === 'string' ? p.nombre : 'Producto',
+	price: p?.precio !== null && p?.precio !== undefined ? `$U${String(p.precio)}` : '',
+    desc: typeof p?.descripcion === 'string' ? p.descripcion : '',
+}));
+---
+
+<section>
+    <div class="py-16 bg-white z-10 relative">
+        <div class="container mx-auto px-4">
+            <div class="relative flex justify-center items-center mb-16">
+                <hr class="absolute bottom-2/5 left-0 right-0 h-1 z-[-1] border-dashed border-t-6 border-[#EF5DA8] max-w-7xl mx-auto" />
+                <h2 class="text-8xl font-bold text-center text-[#333333] z-10 bg-white inline-block px-4">
+                    Más vendidos
+                </h2>
+            </div>
+            <a href="/catalog" class="text-[#EF5DA8] font-semibold text-lg flex justify-end underline">Ver todos</a>
+            <div class="flex flex-col items-center">
+                <div class="relative w-full max-w-6xl mx-auto">
+                    <div class="flex justify-center items-center gap-[-48px] overflow-x-visible py-8">
+                        <div id="carouselCards" class="flex justify-center items-center gap-[-48px] w-full"></div>
+                    </div>
+                    <div class="flex flex-row justify-center items-center mt-4 gap-4">
+                        <button id="prevBtn" class="bg-pink-200 hover:bg-pink-300 rounded-full p-2 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-pink-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <div id="carouselDots" class="flex gap-2"></div>
+                        <button id="nextBtn" class="bg-pink-200 hover:bg-pink-300 rounded-full p-2 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-pink-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script type="module" define:vars={{ cards }}>
+                const cardsData = /** @type {{id: string, href: string, img: string, title: string, price: string, desc: string}[]} */ (cards);
+
+                if (!Array.isArray(cardsData) || cardsData.length === 0) {
+                    const carousel = document.getElementById('carouselCards');
+                    const dots = document.getElementById('carouselDots');
+                    const prev = document.getElementById('prevBtn');
+                    const next = document.getElementById('nextBtn');
+                    if (carousel) carousel.innerHTML = '<p class="text-gray-500">No hay productos destacados para mostrar.</p>';
+                    if (dots) dots.innerHTML = '';
+                    if (prev) prev.setAttribute('disabled', 'true');
+                    if (next) next.setAttribute('disabled', 'true');
+                }
+
+                let centerIndex = Math.min(3, Math.max(0, cardsData.length - 1));
+                function renderCarousel() {
+                    if (cardsData.length === 0) return;
+                    const carousel = document.getElementById('carouselCards');
+                        carousel.innerHTML = '';
+                        for (let i = centerIndex - 3; i <= centerIndex + 3; i++) {
+                            const idx = (i + cardsData.length) % cardsData.length;
+                            const card = cardsData[idx];
+                            let scale = 0.6, opacity = 0.4, width = 'w-48', height = 'h-64', z = '', zIndex = 1;
+                            let transition = 'transition-transform transition-opacity duration-500 ease-in-out';
+                            let overlap = '2xl:mx-[-32px] xl:mx-[-42px] lg:mx-[-64px] md:mx-[-48px] sm:mx-[-32px] mx-[-48px]';
+                            const dist = Math.abs(i - centerIndex);
+                            zIndex = 10 - dist;
+                            if (i === centerIndex) {
+                                scale = 1; opacity = 1; width = 'xl:w-96 md:w-76 sm:w-64 w-46'; height = 'xl:h-96 md:h-76 sm:h-64 h-46'; z = 'border-4 border-pink-300'; overlap = 'sm:mx-[-100px]';
+                            } else if (dist === 1) {
+                                scale = 0.9; opacity = 0.8; width = 'xl:w-72 md:w-64 sm:w-46 w-32'; height = 'xl:h-72 md:h-64 sm:h-46 h-32';
+                            } else if (dist === 2) {
+                                scale = 0.75; opacity = 0.6; width = 'xl:w-64 md:w-46 sm:w-32 w-24'; height = 'xl:h-64 md:h-46 sm:h-32 h-24';
+                            } else {
+                                scale = 0.6; opacity = 0.4; width = 'xl:w-46 md:w-32 sm:w-24 w-16'; height = 'xl:h-46 md:h-32 sm:h-24 h-16';
+                            }
+                            let textMargin = '';
+                            if (dist === 3) textMargin = 'mt-[-64px]';
+                            else if (dist === 2) textMargin = 'mt-[-10px]';
+                            else if (dist === 1) textMargin = 'mt-6';
+                            else textMargin = 'mt-12';
+                            carousel.innerHTML += `
+                                <div style="z-index:${zIndex}" class="transform scale-[${scale}] opacity-[${opacity}] ${transition} bg-white rounded-2xl shadow-lg ${width} ${height} flex-shrink-0 ${z} relative ${overlap} cursor-pointer" tabindex="0" role="button" aria-label="${card.title}" data-idx="${idx}" data-href="${card.href}">
+                                    <img src="${card.img}" alt="${card.title}" class="w-full h-48 object-cover rounded-t-2xl" />
+                                    <div class="p-4 ${textMargin}">
+                                        <br>
+                                        <br>
+                                        <div class="text-lg font-semibold">${card.title}</div>
+                                        <div class="text-sm text-gray-600">${card.desc}</div>
+                                    </div>
+                                    ${i === centerIndex ? `<div class="absolute top-4 right-4 bg-pink-100 text-pink-500 font-bold rounded-full px-4 py-2 text-xl shadow">${card.price}</div>` : ''}
+                                </div>
+                            `;
+                        }
+                        renderDots();
+                        Array.from(carousel.children).forEach((el, idx) => {
+                            el.addEventListener('click', () => {
+                                const cardIdx = parseInt(el.getAttribute('data-idx'));
+                                const href = el.getAttribute('data-href');
+                                if (cardIdx === centerIndex && href) {
+                                    window.location.href = href;
+                                    return;
+                                }
+                                centerIndex = cardIdx;
+                                renderCarousel();
+                            });
+                        });
+                        carousel.setAttribute('tabindex', '0');
+                        carousel.onkeydown = (e) => {
+                            if (e.key === 'ArrowLeft') {
+                                centerIndex = (centerIndex - 1 + cardsData.length) % cardsData.length;
+                                renderCarousel();
+                            } else if (e.key === 'ArrowRight') {
+                                centerIndex = (centerIndex + 1) % cardsData.length;
+                                renderCarousel();
+                            }
+                        };
+                        let dragStartX = null;
+                        carousel.onmousedown = (e) => { dragStartX = e.clientX; };
+                        carousel.onmouseup = (e) => {
+                            if (dragStartX !== null) {
+                                const diff = e.clientX - dragStartX;
+                                if (diff > 50) {
+                                    centerIndex = (centerIndex - 1 + cardsData.length) % cardsData.length;
+                                    renderCarousel();
+                                } else if (diff < -50) {
+                                    centerIndex = (centerIndex + 1) % cardsData.length;
+                                    renderCarousel();
+                                }
+                                dragStartX = null;
+                            }
+                        };
+                        carousel.ontouchstart = (e) => { dragStartX = e.touches[0].clientX; };
+                        carousel.ontouchend = (e) => {
+                            if (dragStartX !== null) {
+                                const diff = e.changedTouches[0].clientX - dragStartX;
+                                if (diff > 50) {
+                                    centerIndex = (centerIndex - 1 + cardsData.length) % cardsData.length;
+                                    renderCarousel();
+                                } else if (diff < -50) {
+                                    centerIndex = (centerIndex + 1) % cardsData.length;
+                                    renderCarousel();
+                                }
+                                dragStartX = null;
+                            }
+                        };
+                }
+                function renderDots() {
+                    const dots = document.getElementById('carouselDots');
+                    dots.innerHTML = '';
+                    for (let i = 0; i < cardsData.length; i++) {
+                        dots.innerHTML += `<button class="w-3 h-3 rounded-full ${i === centerIndex ? 'bg-pink-400' : 'bg-pink-200'} mx-1" onclick="window.setCenterIndex(${i})"></button>`;
+                    }
+                }
+                window.setCenterIndex = function(idx) {
+                    centerIndex = idx;
+                    renderCarousel();
+                }
+                document.getElementById('prevBtn').onclick = () => {
+                    centerIndex = (centerIndex - 1 + cardsData.length) % cardsData.length;
+                    renderCarousel();
+                };
+                document.getElementById('nextBtn').onclick = () => {
+                    centerIndex = (centerIndex + 1) % cardsData.length;
+                    renderCarousel();
+                };
+                renderCarousel();
+            </script>
+        </div>
+    </div>
+</section>

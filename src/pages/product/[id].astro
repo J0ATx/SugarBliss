@@ -1,0 +1,95 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+import { supabase } from '../../db/supabase';
+
+type ProductLike = Record<string, unknown>;
+
+type StaticPath = {
+	params: { id: string };
+	props: { product: ProductLike };
+};
+
+export async function getStaticPaths(): Promise<StaticPath[]> {
+	const { data, error } = await supabase.from('productos').select('*').order('id', { ascending: true });
+	if (error || !data) return [];
+
+	return data
+		.filter((p) => p?.id !== null && p?.id !== undefined)
+		.map((p) => ({
+			params: { id: String(p.id) },
+			props: { product: p as ProductLike },
+		}));
+}
+
+const { product } = Astro.props;
+
+const formatPrice = (value: unknown) => {
+	if (value === null || value === undefined || value === '') return '';
+	if (typeof value === 'number') return value.toLocaleString('es-UY', { style: 'currency', currency: 'UYU' });
+	return String(value);
+};
+
+const getImageUrl = (p: ProductLike) => {
+	const raw = p?.image_id ?? p?.imagen_id ?? p?.image ?? p?.imagen ?? p?.foto ?? null;
+	if (!raw) return '/images/valentin.jpg';
+	if (typeof raw === 'string' && (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/'))) return raw;
+	return `/images/${raw}.jpg`;
+};
+
+const title = typeof product?.nombre === 'string' ? product.nombre : 'Producto';
+---
+
+<Layout title={`${title} - Sugar Bliss`}>
+	<Header currentPath={Astro.url.pathname} />
+
+	<main class="bg-neutral-100 pt-28">
+		<div class="max-w-[1100px] m-auto px-4 py-6 lg:py-10">
+			<a href="/catalog" class="inline-flex items-center text-sm font-semibold text-gray-900 underline underline-offset-4">
+				Volver al catálogo
+			</a>
+
+			<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+				<section class="overflow-hidden rounded-2xl bg-white p-4">
+					<img
+						src={getImageUrl(product)}
+						alt={(product?.nombre as string) ?? 'Producto'}
+						class="h-[340px] w-full rounded-xl bg-gray-100 object-cover sm:h-[420px]"
+						loading="eager"
+					/>
+				</section>
+
+				<section class="rounded-2xl bg-white p-6">
+					<h1 class="text-3xl font-bold tracking-tight text-gray-900">{(product?.nombre as string) ?? 'Producto'}</h1>
+
+					{product?.precio !== undefined && product?.precio !== null ? (
+						<p class="mt-3 text-2xl font-bold text-[#EF5DA8]">{formatPrice(product.precio)}</p>
+					) : null}
+
+					{product?.descripcion ? (
+						<p class="mt-4 text-sm leading-6 text-gray-700">{product.descripcion as string}</p>
+					) : null}
+
+					{product?.detalles ? (
+						<div class="mt-4 rounded-xl bg-neutral-50 p-4 text-sm text-gray-700">
+							{product.detalles as string}
+						</div>
+					) : null}
+
+					<div class="mt-6 flex flex-col gap-3 sm:flex-row">
+						<a href="#" class="inline-flex flex-1 items-center justify-center rounded-full bg-[#EF5DA8] px-6 py-3 text-sm font-semibold text-white hover:opacity-95">
+							Pedir ahora
+						</a>
+						<a href="/catalog" class="inline-flex flex-1 items-center justify-center rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800">
+							Seguir viendo
+						</a>
+					</div>
+				</section>
+			</div>
+		</div>
+	</main>
+
+	<Footer />
+</Layout>

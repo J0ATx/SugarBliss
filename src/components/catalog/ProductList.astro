@@ -1,0 +1,77 @@
+---
+const { products = [], error = null } = Astro.props;
+
+type ProductLike = Record<string, unknown>;
+
+const getProductHref = (p: ProductLike) => {
+	const id = p?.id;
+	if (id === null || id === undefined) return '#';
+	return `/product/${String(id)}`;
+};
+
+---
+
+<div class="bg-neutral-100 pt-28">
+	<div class="max-w-[1440px] m-auto flex flex-col gap-1 md:gap-4 sm:px-4 py-2 lg:py-8">
+		<div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+			<div>
+				<h2 class="text-3xl font-bold tracking-tight text-gray-900">Menú</h2>
+				<p class="mt-1 text-sm text-gray-600">Elegí tu favorito y pedilo en segundos.</p>
+			</div>
+			<a href="#" class="inline-flex w-fit items-center justify-center rounded-full bg-[#EF5DA8] px-5 py-3 text-sm font-semibold text-white hover:opacity-95">Pedí ahora</a>
+		</div>
+
+		{error ? (
+			<div class="mt-8 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+				No pudimos cargar los productos. {error.message ? `Detalle: ${error.message}` : ''}
+			</div>
+		) : products.length === 0 ? (
+			<div class="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-8 text-gray-700">
+				Todavía no hay productos para mostrar.
+			</div>
+		) : (
+			<div class="grid xs:grid-cols-[repeat(auto-fit,_minmax(21rem,_1fr))] gap-x-6 sm:gap-y-6 pb-6 pt-6 lg:grid-cols-2 xl:grid-cols-3">
+
+        <!-- Product card -->
+				{products.map((p: ProductLike) => (
+					<a href={getProductHref(p)} class="block">
+						<article class="relative flex cursor-pointer gap-4 sm:rounded-xl border-slate-300 bg-white p-4 pb-6 h-44 xs:h-48 lg:h-52 sm:after:h-0 after:block after:absolute after:bottom-0 after:h-px after:w-11/12 after:bg-slate-300">
+						<div class="relative">
+							<img
+								src={(p?.image_url as string) ?? '/images/default-product.jpg'}
+								alt={(p?.nombre as string) ?? 'Producto'}
+								class="min-w-36 min-h-36 xs:min-w-40 xs:min-h-40 lg:min-w-44 lg:min-h-44 w-full h-full"
+								loading="lazy"
+							/>
+							<div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent"></div>
+						</div>
+            <div class="flex flex-col justify-between w-full">
+              <div class="flex flex-col gap-1 overflow-hidden text-ellipsis">
+                  <h3 class="text-base font-semibold leading-snug text-gray-900">
+                    {p?.nombre ?? 'Producto'}
+                  </h3>
+                  {p?.descripcion !== undefined && p?.descripcion !== null ? (
+                    <div class="font-matter text-[0.75rem] font-normal leading-4 text-gray-600 line-clamp-1 xs:line-clamp-2 md:line-clamp-3 lg:line-clamp-4">
+                      {p.descripcion}
+                    </div>
+                  ) : null}
+
+              </div>
+                {p?.detalles ? (
+                  <p class="line-clamp-2 text-sm text-gray-600">{p.detalles}</p>
+                ) : null}
+
+                <div class="flex items-center justify-between">
+                  {p?.precio ? (
+                    <p class="text-sm font-semibold text-gray-900">$U{p.precio}</p>
+                ) : null}
+                  <p class="text-sm font-semibold text-gray-900 underline">Ver más</p>
+              </div>
+            </div>
+						</article>
+					</a>
+				))}
+			</div>
+		)}
+	</div>
+</div>

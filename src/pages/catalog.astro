@@ -1,0 +1,22 @@
+---
+import Header from '../components/Header.astro';
+import ProductList from '../components/catalog/ProductList.astro';
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+
+import { supabase } from '../db/supabase';
+
+const { data, error } = await supabase
+	.from('productos')
+	.select('*')
+	.order('id', { ascending: true });
+
+const products = data ?? [];
+
+---
+
+<Layout title="Productos - Sugar Bliss">
+ 	<Header currentPath={Astro.url.pathname} />
+	<ProductList products={products} error={error} />
+	<Footer />
+</Layout>

@@ -1,0 +1,162 @@
+---
+import "../styles/global.css";
+
+const { currentPath = "/" } = Astro.props;
+---
+
+<!--
+<header
+    class="bg-white
+        shadow-xl
+        fixed
+        w-full
+        z-50"
+>
+    <nav class="mx-auto px-16 py-3">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/">
+                    <h1 class="text-3xl font-bold text-[#EF5DA8] font-lily">Sugar Bliss</h1>
+                </a>
+            </div>
+            <div class="space-x-16 flex items-center justify-center font-poppins text-black ">
+                <a href="/" class={`relative inline-flex items-center ${currentPath === "/" ? "text-[#EF5DA8] font-semibold before:content-[''] before:absolute before:w-2 before:h-2 before:bg-[#EF5DA8] before:rounded-4xl before:transition-all before:left-1/2 before:-translate-x-1/2 before:top-1/2 before:-translate-y-6" : ""}`}>Inicio</a>
+                <a href="/catalog" class={`relative inline-flex items-center ${currentPath === "/catalog" ? "text-[#EF5DA8] font-semibold before:content-[''] before:absolute before:w-2 before:h-2 before:bg-[#EF5DA8] before:rounded-4xl before:transition-all before:left-1/2 before:-translate-x-1/2 before:top-1/2 before:-translate-y-6" : ""}`}>Menú</a>
+                <a href="#" class="relative inline-flex items-center">Galería</a>
+                <a href="#" class="relative inline-flex items-center">Contacto</a>
+                <a href="#" class="bg-[#EF5DA8] text-white px-5 py-3 rounded-4xl">Pedí ahora</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+-->
+<script
+    src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1"
+    type="module"></script>
+<header
+    class="bg-white
+        shadow-xl
+        fixed
+        w-full
+        z-50"
+>
+    <nav
+        class="relative z-50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10"
+    >
+        <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+            <div class="relative flex h-16 items-center justify-between">
+                <div
+                    class="absolute inset-y-0 left-0 flex items-center sm:hidden"
+                >
+                    <!-- Mobile menu button-->
+                    <button
+                        type="button"
+                        command="--toggle"
+                        commandfor="mobile-menu"
+                        class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500"
+                    >
+                        <span class="absolute -inset-0.5"></span>
+                        <span class="sr-only">Open main menu</span>
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            data-slot="icon"
+                            aria-hidden="true"
+                            class="size-6 in-aria-expanded:hidden"
+                        >
+                            <path
+                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                        </svg>
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            data-slot="icon"
+                            aria-hidden="true"
+                            class="size-6 not-in-aria-expanded:hidden"
+                        >
+                            <path
+                                d="M6 18 18 6M6 6l12 12"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div
+                    class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-between"
+                >
+                    <div class="flex shrink-0 items-center">
+                        <a href="/">
+                            <h1
+                                class="text-3xl font-bold text-[#EF5DA8] font-lily"
+                            >
+                                Sugar Bliss
+                            </h1>
+                        </a>
+                    </div>
+                    <div
+                        class="hidden sm:ml-6 sm:flex sm:items-center sm:justify-center"
+                    >
+                        <div class="flex space-x-4">
+                            <a
+                                href="/"
+                                class={`relative inline-flex items-center ${currentPath === "/" ? "text-[#EF5DA8] font-semibold before:content-[''] before:absolute before:w-2 before:h-2 before:bg-[#EF5DA8] before:rounded-4xl before:transition-all before:left-1/2 before:-translate-x-1/2 before:top-1/2 before:-translate-y-6" : ""}`}
+                                >Inicio</a
+                            >
+                            <a
+                                href="/catalog"
+                                class={`relative inline-flex items-center ${currentPath === "/catalog" ? "text-[#EF5DA8] font-semibold before:content-[''] before:absolute before:w-2 before:h-2 before:bg-[#EF5DA8] before:rounded-4xl before:transition-all before:left-1/2 before:-translate-x-1/2 before:top-1/2 before:-translate-y-6" : ""}`}
+                                >Menú</a
+                            >
+                            <a
+                                href="#"
+                                class="relative inline-flex items-center"
+                                >Galería</a
+                            >
+                            <a
+                                href="#"
+                                class="relative inline-flex items-center"
+                                >Contacto</a
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+                >
+                    <a
+                        href="#"
+                        class="bg-[#EF5DA8] text-white px-5 py-3 rounded-4xl"
+                        >Pedí ahora</a
+                    >
+                </div>
+            </div>
+        </div>
+
+        <el-disclosure id="mobile-menu" hidden class="block sm:hidden">
+            <div class="space-y-1 px-2 pt-2 pb-3 bg-neutral-50 border-t border-neutral-200 flex flex-col">
+                <a
+                    href="/"
+                    class={`relative inline-flex items-center ${currentPath === "/" ? "text-[#EF5DA8] font-semibold" : ""}`}
+                    >Inicio</a
+                >
+                <a
+                    href="/catalog"
+                    class={`relative inline-flex items-center ${currentPath === "/catalog" ? "text-[#EF5DA8] font-semibold" : ""}`}
+                    >Menú</a
+                >
+                <a href="#" class="relative inline-flex items-center">Galería</a
+                >
+                <a href="#" class="relative inline-flex items-center"
+                    >Contacto</a
+                >
+            </div>
+        </el-disclosure>
+    </nav>
+</header>

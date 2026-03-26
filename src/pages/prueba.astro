@@ -1,0 +1,24 @@
+---
+import { supabase } from '../db/supabase';
+
+const { data, error } = await supabase.from("productos").select('*');
+---
+
+<div>
+  <h2>Debug Info:</h2>
+  <p>Error: {error ? JSON.stringify(error) : 'None'}</p>
+  <p>Data length: {data ? data.length : 'null'}</p>
+  <p>First item: {data && data[0] ? JSON.stringify(data[0]) : 'none'}</p>
+</div>
+
+{error ? (
+  <p>Error: {error.message}</p>
+) : data ? (
+  <ul>
+    {data.map((entry) => (
+      <li>{entry.id} - {entry.nombre}</li>
+    ))}
+  </ul>
+) : (
+  <p>No productos found</p>
+)}
